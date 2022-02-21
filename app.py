@@ -163,7 +163,8 @@ app.layout = dbc.Container(
                         label='Just Fires',
                         labelPosition='bottom',
                         value=False,
-                        color="red"
+                        color="#B5DE2A",
+                        theme='plotly_dark'
                         
                     ), 
                 width={"size": 3}
