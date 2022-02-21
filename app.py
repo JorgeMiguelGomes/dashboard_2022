@@ -19,6 +19,7 @@ import plotly.io as pio
 # Import Dash and Dash Bootstrap Components
 import dash
 from dash import Input, Output, dcc, html
+import dash_daq as daq
 import dash_bootstrap_components as dbc
 # _________________________________________
 # INITIAL VARIABLES
@@ -143,18 +144,31 @@ app.layout = dbc.Container(
                 ),
             ),
         dbc.Row(
-            dbc.Col(
-                dcc.DatePickerRange(
-                    id='date-picker',
-                    min_date_allowed=date(1995, 8, 5),
-                    max_date_allowed=datetime.today(),
-                    initial_visible_month=date(2022, 2, 1),
-                    display_format='D/M/Y',
-                    start_date=date.today(),
-                    end_date=date.today()
+            [
+                dbc.Col(
+                    dcc.DatePickerRange(
+                        id='date-picker',
+                        min_date_allowed=date(1995, 8, 5),
+                        max_date_allowed=datetime.today(),
+                        initial_visible_month=date(2022, 2, 1),
+                        display_format='D/M/Y',
+                        start_date=date.today(),
+                        end_date=date.today()
+                    ),
+                width={"size": 3},
                 ),
-            width={"size": 6},
-            ),
+                dbc.Col(
+                    daq.ToggleSwitch(
+                        id='fma_switch',
+                        label='Just Fires',
+                        labelPosition='bottom',
+                        value=False,
+                        color="red"
+                        
+                    ), 
+                width={"size": 3}
+                ),
+            ],
         ),
 
         dbc.Row(
@@ -179,19 +193,23 @@ app.layout = dbc.Container(
     Output(component_id="graph_bar",component_property="figure"),
     Output(component_id="graph_line",component_property="figure"),
     Input('date-picker', 'start_date'),
-    Input('date-picker', 'end_date')
+    Input('date-picker', 'end_date'),
+    Input('fma_switch', 'value')
 
 )
-def new_graphs(start_date,end_date):
+def new_graphs(start_date,end_date,fma_switch):
 
     print("LOOP STARTS HERE")
     print(start_date)
     print(end_date)
     print("---------------------")
    
+    if fma_switch == False:
+            selector = 1         
+    else:
+            selector = 0
 
-
-    selector = 1
+    
     limit = 100000
     url_bar = f"https://api.fogos.pt/v2/incidents/search" \
     f"?before={end_date}" \
