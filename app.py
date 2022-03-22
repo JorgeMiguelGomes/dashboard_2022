@@ -355,27 +355,40 @@ def new_graphs(start_date,end_date,fma_switch,fire_switch):
     # Convert seconds to Date Time format 
     df_dash['dateTime.sec'] = pd.to_datetime(df_dash['dateTime.sec'], unit='s')
 
-
-    # _________________________________________
+   
+    # -------------------------------------------
     # Create dataframes for the updated graphs 
+    # -------------------------------------------
 
     df_in_pie = df_dash.groupby(['natureza','day','familiaName'],as_index=False)['sadoId'].nunique()
     df_in_bar = df_dash.groupby(['natureza','date'],as_index=False)['sadoId'].nunique()
-    df_in_line = df_dash.groupby(['dateTime.sec'],as_index=False)['sadoId'].nunique()
+    df_in_line = df_dash.groupby(['dateTime.sec','natureza'],as_index=False)['sadoId'].nunique()
+
+   
+
+    df_half = df_in_line.resample('15min', on='dateTime.sec', offset='01s').sadoId.count().to_frame().reset_index()
 
 
-    # _________________________________________
+    # ------------------------------
     # DEFINE THE UPDATED GRAPHS
+    # ------------------------------
+
 
     # Define pie, bar, and line graphs 
     fig_pie = px.pie(df_in_pie,names='natureza',values='sadoId',color='natureza',hole=0.5,color_discrete_sequence=colors)
     fig_bar = px.bar(df_in_bar,x='date',y='sadoId', color='natureza',color_discrete_sequence=colors,template='plotly_dark')
-    fig_line = px.line(df_in_line,x='dateTime.sec',y='sadoId', color_discrete_sequence=colors,template='plotly_dark')
+    fig_line = px.line(df_half,x='dateTime.sec',y='sadoId',color_discrete_sequence=colors,template='plotly_dark')
 
     # Styling for graphs
 
     fig_pie.update_traces(textposition='inside', textinfo='value+percent+label')
     fig_pie.update_layout(uniformtext_minsize=12, uniformtext_mode='hide',template='plotly_dark')
+    fig_line.update_xaxes(nticks=5)
+
+
+    # ------------------------------
+    #        RETURN CALLBACK
+    # ------------------------------
 
 
     return fig_pie, fig_bar, fig_line
@@ -384,9 +397,11 @@ def new_graphs(start_date,end_date,fma_switch,fire_switch):
 # Load APP 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, port=8888)
+    app.run_server(debug=False, port=8081)
 
 
 # APP ENDS HERE 
+
+# Made with 🤍 by Jorge Gomes MARCH 2022
 
 
